@@ -578,3 +578,133 @@ textarea:focus {
     width: 100%;
   }
 }
+
+
+/* ============================
+   PAGE D'ACCUEIL RESPONSIVE
+============================ */
+
+.home-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 8px;
+}
+
+/* Grille 2 colonnes sur desktop, 1 colonne sur mobile */
+.home-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+}
+
+/* Bloc texte gauche */
+.home-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Badge en haut */
+.home-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(96, 165, 250, 0.7);
+  color: #e5e7eb;
+  width: fit-content;
+}
+
+.home-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #22c55e;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.9);
+}
+
+.home-hero-title {
+  font-size: 2.1rem;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.home-hero-highlight {
+  display: block;
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.home-hero-subtitle {
+  font-size: 0.95rem;
+  max-width: 520px;
+  color: #cbd5f5;
+}
+
+/* Petites stats sous le texte */
+.home-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.home-stat-card {
+  border-radius: 12px;
+  padding: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.92);
+  font-size: 0.78rem;
+}
+
+.home-stat-number {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.home-stat-label {
+  opacity: 0.9;
+}
+
+/* Bloc login à droite : on réutilise .hero-card + petit ajustement */
+.home-login-card {
+  max-width: 420px;
+  margin-left: auto;
+}
+
+/* RESPONSIVE : tablette */
+@media (max-width: 900px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-login-card {
+    max-width: 460px;
+    margin: 0 auto;
+  }
+
+  .home-hero-title {
+    font-size: 1.8rem;
+  }
+}
+
+/* RESPONSIVE : mobile */
+@media (max-width: 600px) {
+  .home-page {
+    padding: 12px 10px;
+  }
+
+  .home-hero-title {
+    font-size: 1.6rem;
+  }
+
+  .home-hero-subtitle {
+    font-size: 0.85rem;
+  }
+}
