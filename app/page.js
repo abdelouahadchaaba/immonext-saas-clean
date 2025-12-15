@@ -56,8 +56,16 @@ export default function HomePage() {
         throw new Error(data?.error || "Échec de la connexion");
       }
 
-      // après connexion → on va vers les annonces
-      router.push("/annonces");
+      // ⬇️ IMPORTANT : on regarde le user renvoyé par l’API
+      const u = data?.user || data || null;
+
+      // SUPER_ADMIN ou utilisateur qui a une agence -> accès à /annonces (mais filtré par son agence)
+      if (u?.role === "SUPER_ADMIN" || u?.agencyId) {
+        router.push("/annonces");
+      } else {
+        // ✅ utilisateur SANS agence -> il ne voit que la vitrine
+        router.push("/galerie");
+      }
     } catch (err) {
       setError(err.message || "Erreur lors de la connexion");
     } finally {
@@ -69,137 +77,246 @@ export default function HomePage() {
   const isSuperAdmin = me?.role === "SUPER_ADMIN";
 
   return (
-    <div className="home-page">
-      <div className="home-grid">
-        {/* COLONNE GAUCHE : texte marketing + boutons */}
-        <section className="home-hero">
-          <div className="home-badge">
-            <span className="home-badge-dot" />
-            Plateforme SaaS multi-agences immobilières
-          </div>
-
-          <h1 className="home-hero-title">
-            ImmoNext – la nouvelle génération de{" "}
-            <span className="home-hero-highlight">
-              SaaS pour les agences immobilières.
-            </span>
-          </h1>
-
-          <p className="home-hero-subtitle">
-            Centralise tes agences, tes annonces et toutes tes photos dans une
-            seule plateforme. ImmoNext est pensée pour les réseaux immobiliers,
-            les agences indépendantes et les investisseurs partout dans le
-            monde (PostgreSQL + Prisma + Supabase + Next.js).
-          </p>
-
-          {authChecked && me && (
-            <p
-              style={{
-                fontSize: "0.9rem",
-                color: "#bbf7d0",
-                marginTop: 4,
-              }}
-            >
-              Bonjour{" "}
-              <strong>{me.name || me.email}</strong>
-              {hasAgency
-                ? " — tu peux gérer tes annonces depuis le menu Annonces."
-                : " — tu peux explorer la vitrine ImmoNext et découvrir les biens des agences."}
-            </p>
-          )}
-
-          {/* Boutons d’action */}
+    <div className="page" style={{ maxWidth: "100%", paddingTop: 0 }}>
+      {/* BARRE DU HAUT façon ANAXAGO */}
+      <header
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "12px 32px",
+          marginBottom: 12,
+          borderRadius: 999,
+          border: "1px solid rgba(148,163,184,0.35)",
+          background: "rgba(2,6,23,0.95)",
+        }}
+      >
+        {/* Logo simple pour l’instant */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            fontWeight: 600,
+            letterSpacing: "0.12em",
+          }}
+        >
           <div
             style={{
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              border: "1px solid #e5e7eb",
               display: "flex",
-              flexWrap: "wrap",
-              gap: 8,
-              marginTop: 12,
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 16,
             }}
           >
-            {/* Tout le monde peut voir la vitrine */}
-            <Link href="/galerie">
-              <button
-                className="btn-outline"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #4f46e5, #06b6d4, #22c55e)",
-                  color: "#020617",
-                  fontWeight: 600,
-                  borderColor: "transparent",
-                }}
-              >
-                🌍 Voir la vitrine des annonces
-              </button>
+            IN
+          </div>
+          <span>IMMONEXT</span>
+        </div>
+
+        {/* Menu central (juste du texte) */}
+        <nav
+          style={{
+            display: "flex",
+            gap: 24,
+            fontSize: "0.9rem",
+            opacity: 0.9,
+          }}
+        >
+         
+         
+        </nav>
+
+        {/* Actions à droite */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
+          {authChecked && me ? (
+            <Link href={hasAgency || isSuperAdmin ? "/annonces" : "/galerie"}>
+              <button className="btn-outline">Mon espace</button>
             </Link>
-
-            {/* Non connecté → boutons register + login */}
-            {authChecked && !me && (
-              <>
-                <Link href="/register">
-                  <button className="btn-outline">
-                    🏢 Créer une agence ou un compte
-                  </button>
-                </Link>
-                <Link href="/login">
-                  <button className="btn-outline">🔑 Page de connexion</button>
-                </Link>
-              </>
-            )}
-
-            {/* Connecté + agence → accès direct annonces */}
-            {authChecked && me && hasAgency && (
-              <Link href="/annonces">
-                <button className="btn-outline">📋 Gérer mes annonces</button>
-              </Link>
-            )}
-
-            {/* Connecté sans agence → CTA devenir agence */}
-            {authChecked && me && !hasAgency && (
-              <Link href="/register">
-                <button className="btn-outline">
-                  🏢 Devenir agence partenaire
+          ) : (
+            <>
+              <Link href="/login">
+                <button
+                  className="btn-outline"
+                  style={{
+                    paddingInline: 16,
+                    background: "transparent",
+                  }}
+                >
+                  Se connecter
                 </button>
               </Link>
-            )}
-
-            {/* Super admin → gestion agences */}
-            {authChecked && isSuperAdmin && (
-              <Link href="/agences">
-                <button className="btn-outline">🌐 Gérer les agences</button>
+              <Link href="/register">
+                <button
+                  className="btn-outline"
+                  style={{
+                    paddingInline: 18,
+                    background: "#2563eb",
+                    borderColor: "#2563eb",
+                    color: "#f9fafb",
+                    fontWeight: 600,
+                  }}
+                >
+                  Créer un compte
+                </button>
               </Link>
-            )}
-          </div>
+            </>
+          )}
+        </div>
+      </header>
 
-          {/* Petites stats / avantages */}
-          <div className="home-stats-row">
-            <div className="home-stat-card">
-              <div className="home-stat-number">🌍</div>
-              <div className="home-stat-label">
-                Multi-agences, multi-pays, multi-utilisateurs.
-              </div>
-            </div>
-            <div className="home-stat-card">
-              <div className="home-stat-number">📸</div>
-              <div className="home-stat-label">
-                Galeries photos avec slider auto + manuel.
-              </div>
-            </div>
-            <div className="home-stat-card">
-              <div className="home-stat-number">☁️</div>
-              <div className="home-stat-label">
-                Stockage sécurisé via Supabase Storage.
-              </div>
+      {/* HERO PRINCIPAL */}
+      <section
+        className="panel"
+        style={{
+          padding: "64px 24px 32px",
+          textAlign: "center",
+          maxWidth: "100%",
+        }}
+      >
+        <p
+          style={{
+            fontSize: "0.85rem",
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            color: "#a5b4fc",
+            marginBottom: 12,
+          }}
+        >
+          Plateforme SaaS d&apos;investissement immobilier
+        </p>
+
+        <h1
+          style={{
+            fontSize: "clamp(2.4rem, 4vw, 3.2rem)",
+            lineHeight: 1.2,
+            marginBottom: 12,
+          }}
+        >
+          Plateforme d&apos;investissement en{" "}
+          <span style={{ fontStyle: "italic" }}>immobilier</span> et{" "}
+          <span style={{ fontStyle: "italic" }}>innovation</span>
+        </h1>
+
+        <p
+          style={{
+            maxWidth: 720,
+            margin: "0 auto",
+            fontSize: "0.98rem",
+            opacity: 0.9,
+            marginBottom: 28,
+          }}
+        >
+          ImmoNext connecte les agences immobilières, les investisseurs et les
+          porteurs de projets dans une seule plateforme mondiale : annonces
+          photo, vitrine publique, gestion des équipes & des villes.
+        </p>
+
+        {/* Gros boutons centraux */}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: 14,
+            marginBottom: 32,
+          }}
+        >
+          <Link href={hasAgency || isSuperAdmin ? "/annonces" : "/register"}>
+            <button
+              className="btn-outline"
+              style={{
+                paddingInline: 26,
+                paddingBlock: 12,
+                borderRadius: 999,
+                fontSize: "0.98rem",
+                fontWeight: 600,
+                background: "#f9fafb",
+                color: "#020617",
+                borderColor: "#f9fafb",
+              }}
+            >
+              Créer mon compte agence
+            </button>
+          </Link>
+
+          <Link href="/galerie">
+            <button
+              className="btn-outline"
+              style={{
+                paddingInline: 26,
+                paddingBlock: 12,
+                borderRadius: 999,
+                fontSize: "0.98rem",
+                fontWeight: 500,
+                background: "transparent",
+              }}
+            >
+              Découvrir les annonces
+            </button>
+          </Link>
+        </div>
+
+        {/* Bandeau d’infos */}
+        <div
+          style={{
+            maxWidth: 720,
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))",
+            gap: 10,
+            fontSize: "0.8rem",
+            textAlign: "left",
+          }}
+        >
+          <div>
+            <div style={{ opacity: 0.75 }}>Multi-pays</div>
+            <div style={{ fontWeight: 600 }}>Réseaux d&apos;agences</div>
+          </div>
+          <div>
+            <div style={{ opacity: 0.75 }}>Vitrine photo</div>
+            <div style={{ fontWeight: 600 }}>Galerie publique & slider</div>
+          </div>
+          <div>
+            <div style={{ opacity: 0.75 }}>Sécurité</div>
+            <div style={{ fontWeight: 600 }}>
+              Rôles Super Admin / agence / visiteur
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* COLONNE DROITE : carte de login */}
-        <section className="hero-card home-login-card">
-          <h2 className="hero-title">Connexion à ImmoNext</h2>
-          <p className="hero-subtitle">
-            Connecte-toi pour gérer tes annonces (si tu es une agence) ou pour
-            explorer la vitrine immobilière mondiale.
+      {/* SECTION CONNEXION RAPIDE */}
+      {!me && (
+        <section
+          className="panel"
+          style={{
+            maxWidth: 480,
+            margin: "18px auto 0",
+          }}
+        >
+          <h2
+            className="hero-title"
+            style={{ fontSize: "1.3rem", textAlign: "center" }}
+          >
+            Connexion rapide
+          </h2>
+          <p
+            className="hero-subtitle"
+            style={{ fontSize: "0.9rem", textAlign: "center", marginBottom: 12 }}
+          >
+            Accède à ton espace ImmoNext pour gérer tes annonces ou suivre les
+            opportunités.
           </p>
 
           <form
@@ -208,7 +325,6 @@ export default function HomePage() {
               display: "flex",
               flexDirection: "column",
               gap: "8px",
-              marginTop: "8px",
             }}
           >
             <input
@@ -254,6 +370,7 @@ export default function HomePage() {
               marginTop: 10,
               fontSize: "0.78rem",
               opacity: 0.9,
+              textAlign: "center",
             }}
           >
             Nouvel utilisateur ?{" "}
@@ -264,38 +381,8 @@ export default function HomePage() {
               Créer une agence ou un compte simple
             </a>
           </p>
-
-          <p
-            style={{
-              marginTop: 6,
-              fontSize: "0.75rem",
-              opacity: 0.8,
-            }}
-          >
-            Tu peux aussi simplement te connecter sans agence et visiter la{" "}
-            <a
-              href="/galerie"
-              style={{ textDecoration: "underline", cursor: "pointer" }}
-            >
-              vitrine des annonces
-            </a>
-            .
-          </p>
-
-          <div
-            style={{
-              marginTop: 10,
-              borderTop: "1px solid rgba(148,163,184,0.35)",
-              paddingTop: 8,
-              fontSize: "0.75rem",
-              opacity: 0.8,
-            }}
-          >
-            🔐 Les propriétaires d’agences voient uniquement leurs annonces.
-            Le Super Admin garde la vision globale de toutes les agences.
-          </div>
         </section>
-      </div>
+      )}
     </div>
   );
 }

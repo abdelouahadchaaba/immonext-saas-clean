@@ -137,7 +137,7 @@ export default function GaleriePage() {
         const total = galleryListing.images.length;
         return (prev + 1) % total;
       });
-    }, 4000);
+    }, 20000);
 
     return () => clearInterval(id);
   }, [galleryOpen, galleryListing]);
